@@ -283,8 +283,8 @@ class WordFinder:
             if matched == []:
                 continue
             else:
-                available_words = [x for x in all_comb if x.startswith(prefix)]
-                matched = set(matched).intersection(set(available_words))
+                matched2 = [x for x in all_comb if x.startswith(prefix)]
+                matched = set(matched).intersection(set(matched2))
                 if matched != [] and debug:
                     print(f"Found new matches: {matched}")
                 output += list(matched)
@@ -330,7 +330,9 @@ class WordFinder:
 
         return output
 
-    def extract_1_letter(self, word_list: List[str]):
+    def extract_letter(self, word_list: List[str]) -> List[str]:
         """The goal of this is to extract 1 letter from each word and return a new word using these letters"""
-        pass
-
+        letters = [set(x) for x in word_list]
+        ans_len = len(word_list)
+        # TODO
+            
