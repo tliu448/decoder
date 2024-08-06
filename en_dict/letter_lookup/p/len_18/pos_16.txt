@@ -1,0 +1,17 @@
+cardiosphygmograph
+electrocardiograph
+electrochronograph
+electroretinograph
+gastroduodenoscopy
+hematospectroscope
+interrelationships
+laparothoracoscopy
+laryngostroboscope
+microcinematograph
+pharyngorhinoscopy
+phonocinematograph
+radiocinematograph
+spectropolariscope
+sphygmochronograph
+stereocomparagraph
+thermoradiotherapy

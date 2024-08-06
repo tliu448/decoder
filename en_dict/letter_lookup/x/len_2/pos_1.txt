@@ -1,0 +1,10 @@
+ax
+bx
+dx
+ex
+ix
+lx
+ox
+tx
+ux
+xx

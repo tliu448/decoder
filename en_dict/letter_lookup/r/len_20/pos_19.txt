@@ -1,0 +1,5 @@
+mechanicocorpuscular
+ophthalmodiastimeter
+ophthalmodynamometer
+ophthalmothermometer
+spectropyrheliometer

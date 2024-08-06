@@ -1,0 +1,11 @@
+abdominohysterectomy
+arteriosympathectomy
+cholecystenterostomy
+cholecystgastrostomy
+cholecystnephrostomy
+hepaticoduodenostomy
+laparocholecystotomy
+oophorosalpingectomy
+pancreatoenterostomy
+ureterosalpingostomy
+ureterosigmoidostomy

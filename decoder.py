@@ -1,25 +1,21 @@
-import pandas as pd
-from itertools import product, permutations, combinations
-import os
-from typing import Dict, List, Union, Iterable
 import json
 import numpy as np
-import time
+import os
+import pandas as pd
 
-ALPHABET = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
-            "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+from itertools import product, permutations
+from typing import List, Iterable
+
+TABLE_DIR = "./tables"
+DICTIONARY_DIR = "./en_dict"
 
 class Decoder:
     
     def __init__(self):
-        self.df = pd.read_csv("./mapping.csv").astype(str)
-        self.periodic = pd.read_csv("./periodic.csv").astype(str)
-        self.country = pd.read_csv("./country.csv").astype(str)
-        self.pokemon = pd.read_csv("./pokemon.csv").astype(str)
-
-        with open("./en_dict/word_freq.json", "r") as f:
-            data = json.load(f)
-        self.word_freq = data
+        self.df = pd.read_csv(os.path.join(TABLE_DIR, "mapping.csv")).astype(str)
+        self.periodic = pd.read_csv(os.path.join(TABLE_DIR, "periodic.csv")).astype(str)
+        with open(os.path.join(DICTIONARY_DIR, "en_word_freq_333k.json"), "r") as f:
+            self.word_freq = json.load(f)
         self.lowest_freq = min(self.word_freq.values())
     
     def validate(self, cipher_list, cipher_type):
@@ -208,19 +204,19 @@ class Decoder:
     def crossword(self, cipher: str, get_top_k: int = 0, debug=False):
         """The format of the cipher is like 'g*itar**t' for 'guitarist'"""
         first_iter = True
-        crossword_lookup_dir = "./en_dict/crossword_lookup"
+        lookup_dir = os.path.join(DICTIONARY_DIR, "letter_lookup")
         word_len = len(cipher)
         letter_info = {idx: letter for idx, letter in enumerate(list(cipher)) if letter != "*"}
         
         # If no letter_info is given, return all words of length word_len
         if letter_info == {}:
-            path = f"./en_dict/length_lookup/len_{word_len}.txt"
+            path = os.path.join(DICTIONARY_DIR, "length_lookup", f"len_{word_len}.txt")
             with open(path, "r") as f:
                 output = f.read().split("\n")
             return output
         
         for pos, letter in letter_info.items():
-            path = os.path.join(crossword_lookup_dir, letter, f"len_{word_len}", f"pos_{pos}.txt")
+            path = os.path.join(lookup_dir, letter, f"len_{word_len}", f"pos_{pos}.txt")
 
             if not os.path.isfile(path):
                 if debug:
@@ -338,7 +334,7 @@ class Decoder:
         letters = list(prefix)
         first_iter = True
         for pos, letter in enumerate(letters):
-            path = f"./en_dict/crossword_lookup/{letter}/len_{word_len}/pos_{pos}.txt"
+            path = os.path.join(DICTIONARY_DIR, "letter_lookup", letter, f"len_{word_len}", f"pos_{pos}.txt")
             if os.path.isfile(path):
                 with open(path, "r") as f:
                     matched = f.read().split("\n")
@@ -359,9 +355,10 @@ class Decoder:
         return all_comb
     
     def anagram_basic(self, cipher):
-        """A brute force version that searches any combination of letters through the entire dictionary"""
+        """A brute force version that searches any combination of letters through the entire dictionary
+        This can be really slow"""
         all_comb = self.permute(cipher)
-        with open("./en_dict/en.txt", "r") as f:
+        with open(os.path.join(DICTIONARY_DIR, "en_370k.txt"), "r") as f:
             all_words = f.read().split("\n")
         output = [x for x in all_comb if x in all_words]
         return output
@@ -434,72 +431,5 @@ class Decoder:
         """The goal of this is to extract 1 letter from each word and return a new word using these letters"""
         pass
 
-def prepare_length_lookup(source="./en_dict/en.txt", output_directory="./en_dict/length_lookup"):
-    with open(source, 'r') as f:
-        en_dict = f.read().split("\n")
 
-    max_len = max(len(x) for x in en_dict)
-    decreasing_int = list(range(max_len, 0, -1))
-    output = {word_len: [] for word_len in decreasing_int}
-
-    counter = 0
-    for word in en_dict:
-        counter += 1
-        if counter % 10000 == 0:
-            print(f"Processing word No.{counter}")
-        word_len = len(word)
-        output[word_len].append(word)
-
-    # Write to txt files
-    for k, v in output.items():
-        if v != []:
-            if not os.path.isdir(output_directory):
-                os.makedirs(output_directory, exist_ok=True)
-            path = os.path.join(output_directory, f"len_{k}.txt")
-            with open(path, 'w') as f:
-                f.write("\n".join(v))
-
-def prepare_crossword_lookup(source="./en_dict/en.txt", output_directory="./en_dict/crossword_lookup"):
-    with open(source, 'r') as f:
-        en_dict = f.read().split("\n")
-    
-    max_len = max(len(x) for x in en_dict)
-    decreasing_int = list(range(max_len, -1, -1))
-    len_pos_comb = list(combinations(decreasing_int, 2))
-    letter_len_pos_comb = list(product(ALPHABET, len_pos_comb))
-    output = {comb: [] for comb in letter_len_pos_comb}
-
-    counter = 0
-    for word in en_dict:
-        counter += 1
-        if counter % 10000 == 0:
-            print(f"Processing word No.{counter}")
-        letters = list(word)
-        word_len = len(word)
-        if word_len > max_len:
-            continue
-        for pos, letter in enumerate(letters):
-            comb = (letter, (word_len, pos))
-            output[comb].append(word)
-
-    # Write to txt files
-    for k, v in output.items():
-        if v != []:
-            output_dir = os.path.join(output_directory, k[0], f"len_{k[1][0]}")
-            if not os.path.isdir(output_dir):
-                os.makedirs(output_dir, exist_ok=True)
-            path = os.path.join(output_dir, f"pos_{k[1][1]}.txt")
-            with open(path, 'w') as f:
-                f.write("\n".join(v))
-
-def prepare_word_freq(output_path="./en_dict/word_freq.json"):
-    df = pd.read_csv("./unigram_freq.csv")
-    df["count"] /= 1e9
-    word_freq = {df.loc[idx, "word"]: df.loc[idx, "count"] for idx in range(len(df))}
-    with open(output_path, "w") as f:
-        json.dump(word_freq, f)
-
-# prepare_crossword_lookup()
-# prepare_length_lookup()
-# prepare_word_freq()
-# d = Decoder()
+d = Decoder()
