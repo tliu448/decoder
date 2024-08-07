@@ -400,3 +400,11 @@ class WordFinder:
             output = self.find_top_k(output, get_top_k)
 
         return output
+    
+    @staticmethod
+    def extract_letter_fix_position(word_list: List[str], pos: int = 0):
+        word_len = [len(word) for word in word_list]
+        if (0 in word_len) or (pos >= min(word_len)) or (pos < -min(word_len)):
+            return ""
+        output_letters = [word[pos] for word in word_list]
+        return "".join(output_letters)
