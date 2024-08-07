@@ -8,6 +8,8 @@ from typing import Callable, Dict, Iterable, List, Union
 import time
 
 DICTIONARY_DIR = "./en_dict"
+ALPHABET = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
+            "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
 
 class WordFinder:
 
@@ -18,9 +20,46 @@ class WordFinder:
         self.anagram_cache = {}
     
     @staticmethod
-    def replace_letter(word: str, replacement: Dict[int, str]) -> List[str]:
+    def add_1_letter(word: str) -> List[str]:
+        """Add 1 letter to a given word such that the result is still a word"""
+        word_len = len(word)
+        new_words = [[word[:idx] + x + word[idx:] for x in ALPHABET] for idx in range(word_len+1)]
+        new_words = set(sum(new_words, []))
+        path = os.path.join(DICTIONARY_DIR, "length_lookup", f"len_{word_len+1}.txt")
+        with open(path, "r") as f:
+            words = f.read().split("\n")
+        output = list(new_words.intersection(set(words)))
+        return output
+    
+    @staticmethod
+    def remove_1_letter(word: str) -> List[str]:
+        """Remove 1 letter to a given word such that the result is still a word"""
+        word_len = len(word)
+        new_words = [word[:idx] + word[(idx+1):] for idx in range(word_len)]
+        new_words = set(new_words)
+        path = os.path.join(DICTIONARY_DIR, "length_lookup", f"len_{word_len-1}.txt")
+        with open(path, "r") as f:
+            words = f.read().split("\n")
+        output = list(new_words.intersection(set(words)))
+        return output
+    
+    @staticmethod
+    def replace_1_letter(word: str) -> List[str]:
+        """Replace 1 letter to a given word such that the result is still a word"""
+        word_len = len(word)
+        new_words = [[word[:idx] + x + word[(idx+1):] for x in ALPHABET] for idx in range(word_len)]
+        new_words = set(sum(new_words, []))
+        path = os.path.join(DICTIONARY_DIR, "length_lookup", f"len_{word_len}.txt")
+        with open(path, "r") as f:
+            words = f.read().split("\n")
+        output = list(new_words.intersection(set(words)))
+        return output
+
+    @staticmethod
+    def replace_letters(word: str, replacement: Dict[int, str]) -> List[str]:
         """
-        Replace one or more letters in a word by replacement
+        Replace one or more letters in a word and return all possible combinations.
+        The results are not necessarily words.
         """
         output = []
         letter_list = list(word)
@@ -258,7 +297,7 @@ class WordFinder:
         all_comb = ["".join(x) for x in all_comb]
         return all_comb
     
-    def anagram_brute_force(self, cipher) -> List[str]:
+    def anagram_brute_force(self, cipher: str) -> List[str]:
         """
         A brute force version of anagram that searches any combination of letters through the entire dictionary
         NOTE: This can be really slow
@@ -269,7 +308,7 @@ class WordFinder:
         output = [x for x in all_comb if x in all_words]
         return output
 
-    def anagram(self, cipher, prefix_len: int = 1, get_top_k: int = 0, debug: bool = False) -> List[str]:
+    def anagram(self, cipher: str, prefix_len: int = 1, get_top_k: int = 0, debug: bool = False) -> List[str]:
         """An improved version that searches prefix then words. It seems that prefix_len = 1 gives the best result"""
         word_len = len(cipher)
         if word_len < prefix_len:
@@ -294,7 +333,7 @@ class WordFinder:
 
         return output
     
-    def anagram2(self, cipher, get_top_k: int = 0, debug=False):
+    def anagram2(self, cipher: str, get_top_k: int = 0, debug=False):
         """Solve anagram made of 2 words"""
         word_len = len(cipher)
         if word_len == 1:
