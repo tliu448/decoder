@@ -65,13 +65,21 @@ def prepare_letter_lookup(source="./en_dict/en_370k.txt", output_directory="./en
             with open(path, 'w') as f:
                 f.write("\n".join(v))
 
-def prepare_word_freq(source="./tables/unigram_freq.csv", output_path="./en_dict/en_word_freq_333k.json"):
+def prepare_word_freq(source="./en_dict/unigram_freq.csv", output_path="./en_dict/en_word_freq_333k.json"):
     df = pd.read_csv(source)
     df["count"] /= 1e9 # Scale it down by a billion. This factor might need to be adjusted based on the situation
     word_freq = {df.loc[idx, "word"]: df.loc[idx, "count"] for idx in range(len(df))}
     with open(output_path, "w") as f:
         json.dump(word_freq, f)
 
+def prepare_noun_noun_freq(source="./en_dict/noun-noun.csv", output_path="./en_dict/noun-noun-freq.json"):
+    df = pd.read_csv(source)
+    df["frequency"] /= 1e2 # Scale it down by a billion. This factor might need to be adjusted based on the situation
+    freq = {" ".join([df.loc[idx, "noun1"], df.loc[idx, "noun2"]]): df.loc[idx, "frequency"] for idx in range(len(df))}
+    with open(output_path, "w") as f:
+        json.dump(freq, f)
+
 # prepare_length_lookup()
 # prepare_letter_lookup()
 # prepare_word_freq()
+# prepare_noun_noun_freq()

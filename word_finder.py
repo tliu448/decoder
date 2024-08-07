@@ -18,6 +18,10 @@ class WordFinder:
             self.word_freq = json.load(f)
         self.lowest_freq = min(self.word_freq.values())
         self.anagram_cache = {}
+        
+        with open(os.path.join(DICTIONARY_DIR, "noun-noun-freq.json"), "r") as f:
+            self.noun_noun_freq = json.load(f)
+        self.noun_noun_list = list(self.noun_noun_freq.keys())
     
     @staticmethod
     def add_1_letter(word: str) -> List[str]:
