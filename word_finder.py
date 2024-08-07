@@ -285,7 +285,7 @@ class WordFinder:
             else:
                 matched2 = [x for x in all_comb if x.startswith(prefix)]
                 matched = set(matched).intersection(set(matched2))
-                if matched != [] and debug:
+                if matched != set() and debug:
                     print(f"Found new matches: {matched}")
                 output += list(matched)
 
@@ -330,9 +330,30 @@ class WordFinder:
 
         return output
 
-    def extract_letter(self, word_list: List[str]) -> List[str]:
+    def extract_letter(self, word_list: List[str], prefix_len: int = 1, get_top_k: int = 0, debug: bool = False) -> List[str]:
         """The goal of this is to extract 1 letter from each word and return a new word using these letters"""
-        letters = [set(x) for x in word_list]
-        ans_len = len(word_list)
-        # TODO
-            
+        letter_set_list = [set(x) for x in word_list]
+        ans_len = len(letter_set_list)
+
+        if ans_len < prefix_len:
+            raise ValueError(f"Length of word_list must be no less than the length of prefix, got word_list length: {ans_len} and prefix_len: {prefix_len} instead")
+
+        all_comb = ["".join(x) for x in product(*letter_set_list)]
+        all_prefix = set([x[:prefix_len] for x in all_comb])
+
+        output = []
+        for prefix in all_prefix:
+            matched = self.start_with_substring(prefix, ans_len)
+            if matched == []:
+                continue
+            else:
+                matched2 = [x for x in all_comb if x.startswith(prefix)]
+                matched = set(matched).intersection(set(matched2))
+                if matched != set() and debug:
+                    print(f"Found new matches: {matched}")
+                output += list(matched)
+
+        if get_top_k > 0:
+            output = self.find_top_k(output, get_top_k)
+
+        return output
