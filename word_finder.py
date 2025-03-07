@@ -24,39 +24,39 @@ class WordFinder:
         self.noun_noun_list = list(self.noun_noun_freq.keys())
     
     @staticmethod
-    def add_1_letter(word: str) -> List[str]:
-        """Add 1 letter to a given word such that the result is still a word"""
-        word_len = len(word)
-        new_words = [[word[:idx] + x + word[idx:] for x in ALPHABET] for idx in range(word_len+1)]
-        new_words = set(sum(new_words, []))
-        path = os.path.join(DICTIONARY_DIR, "length_lookup", f"len_{word_len+1}.txt")
+    def add_1_letter(input_string: str) -> List[str]:
+        """Add 1 letter to a given string such that the result is a valid word"""
+        input_string_len = len(input_string)
+        new_input_strings = [[input_string[:idx] + x + input_string[idx:] for x in ALPHABET] for idx in range(input_string_len+1)]
+        new_input_strings = set(sum(new_input_strings, []))
+        path = os.path.join(DICTIONARY_DIR, "length_lookup", f"len_{input_string_len+1}.txt")
         with open(path, "r") as f:
             words = f.read().split("\n")
-        output = list(new_words.intersection(set(words)))
+        output = list(new_input_strings.intersection(set(words)))
         return output
     
     @staticmethod
-    def remove_1_letter(word: str) -> List[str]:
-        """Remove 1 letter to a given word such that the result is still a word"""
-        word_len = len(word)
-        new_words = [word[:idx] + word[(idx+1):] for idx in range(word_len)]
-        new_words = set(new_words)
-        path = os.path.join(DICTIONARY_DIR, "length_lookup", f"len_{word_len-1}.txt")
+    def remove_1_letter(input_string: str) -> List[str]:
+        """Remove 1 letter to a given string such that the result is a valid word"""
+        input_string_len = len(input_string)
+        new_input_strings = [input_string[:idx] + input_string[(idx+1):] for idx in range(input_string_len)]
+        new_input_strings = set(new_input_strings)
+        path = os.path.join(DICTIONARY_DIR, "length_lookup", f"len_{input_string_len-1}.txt")
         with open(path, "r") as f:
             words = f.read().split("\n")
-        output = list(new_words.intersection(set(words)))
+        output = list(new_input_strings.intersection(set(words)))
         return output
     
     @staticmethod
-    def replace_1_letter(word: str) -> List[str]:
-        """Replace 1 letter to a given word such that the result is still a word"""
-        word_len = len(word)
-        new_words = [[word[:idx] + x + word[(idx+1):] for x in ALPHABET] for idx in range(word_len)]
-        new_words = set(sum(new_words, []))
-        path = os.path.join(DICTIONARY_DIR, "length_lookup", f"len_{word_len}.txt")
+    def replace_1_letter(input_string: str) -> List[str]:
+        """Replace 1 letter to a given string such that the result is a valid word"""
+        input_string_len = len(input_string)
+        new_input_strings = [[input_string[:idx] + x + input_string[(idx+1):] for x in ALPHABET] for idx in range(input_string_len)]
+        new_input_strings = set(sum(new_input_strings, []))
+        path = os.path.join(DICTIONARY_DIR, "length_lookup", f"len_{input_string_len}.txt")
         with open(path, "r") as f:
             words = f.read().split("\n")
-        output = list(new_words.intersection(set(words)))
+        output = list(new_input_strings.intersection(set(words)))
         return output
 
     @staticmethod
